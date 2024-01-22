@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { getUsers } from "../controllers/users/getUsers.controller";
 import { getUserById } from "../controllers/users/getUserDetailsById";
 import { deleteUserById } from "../controllers/users/deleteUserById";

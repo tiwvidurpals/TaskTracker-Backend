@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createNewUser = void 0;
 const prisma_1 = require("../../lib/prisma");
 const createUser_schema_1 = require("../../schemas/createUser.schema");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const createNewUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         createUser_schema_1.createUserSchema.parse({
@@ -29,13 +33,15 @@ const createNewUser = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     if (findUser) {
         return res.status(200).json({ msg: "Email already Exist!" });
     }
-    const user = yield prisma_1.prisma.user.create({
-        data: {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-        },
-    });
-    return res.status(201).json({ data: user });
+    yield bcrypt_1.default.hash(req.body.password, 10).then((hashedPassword) => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield prisma_1.prisma.user.create({
+            data: {
+                name: req.body.name,
+                email: req.body.email,
+                password: hashedPassword,
+            },
+        });
+        return res.status(201).json({ data: user });
+    }));
 });
 exports.createNewUser = createNewUser;
