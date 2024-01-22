@@ -16,6 +16,7 @@ exports.prisma = void 0;
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const dotenv_1 = __importDefault(require("dotenv"));
+const users_routes_1 = require("./routes/users.routes");
 dotenv_1.default.config();
 exports.prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
@@ -23,17 +24,7 @@ const port = process.env.PORT;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         app.use(express_1.default.json());
-        app.get("/users", (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const users = yield exports.prisma.user.findMany();
-            res.status(200).json({ data: users });
-        }));
-        app.get("/user/:id", (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.params.id;
-            const user = yield exports.prisma.user.findUnique({
-                where: { id: parseInt(userId) },
-            });
-            res.status(200).json({ data: user });
-        }));
+        app.use("/api/users", users_routes_1.usersRouter);
         // Catch unregistered routes
         app.all("*", (req, res) => {
             res.status(404).json({ error: `Route ${req.originalUrl} not found` });

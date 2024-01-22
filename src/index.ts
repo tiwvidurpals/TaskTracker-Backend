@@ -1,6 +1,7 @@
 import express, { Request, Response, application } from "express";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
+import { usersRouter } from "./routes/users.routes";
 
 dotenv.config();
 
@@ -12,18 +13,7 @@ const port = process.env.PORT;
 async function main() {
   app.use(express.json());
 
-  app.get("/users", async (req: Request, res: Response) => {
-    const users = await prisma.user.findMany();
-    res.status(200).json({ data: users });
-  });
-
-  app.get("/user/:id", async (req: Request, res: Response) => {
-    const userId = req.params.id;
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-    });
-    res.status(200).json({ data: user });
-  });
+  app.use("/api/users", usersRouter);
 
   // Catch unregistered routes
   app.all("*", (req: Request, res: Response) => {
