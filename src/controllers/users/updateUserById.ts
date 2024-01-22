@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { Request, Response } from "express";
 import { createUserSchema as validateUserSchema } from "../../schemas/createUser.schema";
+import bcrypt from "bcrypt";
 
 const updateUserById = async (req: Request, res: Response) => {
   try {
@@ -19,14 +20,18 @@ const updateUserById = async (req: Request, res: Response) => {
   if (!findUser) {
     return res.status(401).json({ msg: "User not Found!" });
   }
-  const user = await prisma.user.update({
-    where: { id: parseInt(userId) },
-    data: {
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-    },
+  await bcrypt.hash(req.body.password, 10).then(async (hashedPassword) => {
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: {
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
+      },
+    });
+    return res
+      .status(201)
+      .json({ msg: "User Updated Successfully!", data: { updatedUser } });
   });
-  return res.status(201).json({ msg: "User Updated Successfully!" });
 };
 export { updateUserById };
